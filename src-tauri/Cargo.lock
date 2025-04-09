@@ -2051,6 +2051,7 @@ name = "mcp-client-dev"
 version = "0.1.0"
 dependencies = [
  "ollama-rs",
+ "once_cell",
  "serde",
  "serde_json",
  "tauri",
