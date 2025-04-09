@@ -1,17 +1,17 @@
-import { useState } from "react";
-// import logo from "./assets/logo.svg";
+import { useEffect, useState } from "react";
 import { Sender } from '@ant-design/x'
-// import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
 function App() {
   const [value, setValue] = useState("");
-  // const [name, setName] = useState("");
+  const [modules, setModules] = useState("")
 
-  async function greet(e: React.FormEvent) {
-    // e.preventDefault();
-    // setGreetMsg(await invoke("greet", { name }));
-  }
+  useEffect(() => {
+    invoke<string>("list_modules").then(res => {
+      setModules(res)
+    })
+  }, [])
 
   return (
     <main className="container">
@@ -20,10 +20,13 @@ function App() {
         onChange={(v) => setValue(v)}
         onSubmit={() => {
           alert(value);
+          invoke("my_custom_command")
         }}
+
 
       />
       <div>{value}</div>
+      {modules}
     </main>
   );
 }
