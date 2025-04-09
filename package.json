@@ -13,6 +13,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@ant-design/x": "^1.1.0",
     "@tauri-apps/api": "^2.0.2",
     "@tauri-apps/plugin-opener": "^2.2.2",
     "react": "^18.2.0",
