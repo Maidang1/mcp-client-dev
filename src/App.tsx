@@ -1,40 +1,37 @@
-import { createSignal } from "solid-js";
+import { useState } from "react";
 import logo from "./assets/logo.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = createSignal("");
-  const [name, setName] = createSignal("");
+  const [greetMsg, setGreetMsg] = useState("");
+  const [name, setName] = useState("");
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name: name() }));
+  async function greet(e: React.FormEvent) {
+    e.preventDefault();
+    setGreetMsg(await invoke("greet", { name }));
   }
 
   return (
-    <main class="container">
-      <h1>Welcome to Tauri + Solid</h1>
+    <main className="container">
+      <h1>Welcome to Tauri + React</h1>
 
-      <div class="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" class="logo vite" alt="Vite logo" />
+      <div className="row">
+        <a href="https://vitejs.dev" target="_blank" rel="noopener">
+          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
         </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
+        <a href="https://tauri.app" target="_blank" rel="noopener">
+          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
         </a>
-        <a href="https://solidjs.com" target="_blank">
-          <img src={logo} class="logo solid" alt="Solid logo" />
+        <a href="https://react.dev" target="_blank" rel="noopener">
+          <img src={logo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <p>Click on the Tauri, Vite, and Solid logos to learn more.</p>
+      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
       <form
-        class="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
+        className="row"
+        onSubmit={greet}
       >
         <input
           id="greet-input"
@@ -43,7 +40,8 @@ function App() {
         />
         <button type="submit">Greet</button>
       </form>
-      <p>{greetMsg()}</p>
+
+      <p>{greetMsg}</p>
     </main>
   );
 }
