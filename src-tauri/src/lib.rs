@@ -13,6 +13,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![command::my_custom_command])
         .invoke_handler(tauri::generate_handler![command::list_modules])
+        .invoke_handler(tauri::generate_handler![command::chat])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

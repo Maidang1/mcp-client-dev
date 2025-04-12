@@ -6,6 +6,7 @@ import "./App.css";
 function App() {
   const [value, setValue] = useState("");
   const [modules, setModules] = useState("")
+  const [response, setResponse] = useState("")
 
   useEffect(() => {
     invoke<string>("list_modules").then(res => {
@@ -18,14 +19,18 @@ function App() {
       <Sender
         value={value}
         onChange={(v) => setValue(v)}
-        onSubmit={() => {
+        onSubmit={async () => {
           alert(value);
-          invoke("my_custom_command")
+          const result = await invoke("chat", { input: value })
+          setResponse(result as string);
+          setValue("");
         }}
+
 
 
       />
       <div>{value}</div>
+      chatResult: {response}
       {modules}
     </main>
   );
