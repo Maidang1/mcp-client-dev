@@ -1,5 +1,9 @@
+use ollama_rs::generation::chat::ChatMessageResponseStream;
 use ollama_rs::generation::chat::{request::ChatMessageRequest, ChatMessage};
 use ollama_rs::Ollama;
+use std::sync::{Arc, Mutex};
+use tauri::{AppHandle, Emitter};
+use tokio_stream::StreamExt;
 
 #[tauri::command]
 pub fn my_custom_command() {
@@ -18,18 +22,63 @@ pub async fn list_modules() -> String {
         .join(", ")
 }
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Message {
+    is_done: bool,
+    content: String,
+}
+
 #[tauri::command]
-pub async fn chat(input: String) -> String {
+pub async fn chat(window: AppHandle, input: String) -> Result<(), String> {
     println!("input is {}", input);
-    let mut history = vec![];
-    let mut ollama = Ollama::default();
+    let history = Arc::new(Mutex::new(vec![]));
+    let ollama = Ollama::default();
     let user_message = ChatMessage::user(input);
-    let result = ollama
-        .send_chat_messages_with_history(
-            &mut history,
+    let mut result: ChatMessageResponseStream = ollama
+        .send_chat_messages_with_history_stream(
+            history,
             ChatMessageRequest::new("llama3.2:latest".to_string(), vec![user_message]),
         )
-        .await;
+        .await
+        .unwrap();
+    // 处理流式响应
+    while let Some(response) = result.next().await {
+        match response {
+            Ok(msg) => {
+                // 发送消息到前端
+                window
+                    .emit(
+                        "chat-response",
+                        Message {
+                            is_done: false,
+                            content: msg.message.content,
+                        },
+                    )
+                    .map_err(|e| e.to_string());
+            }
+            Err(_) => {
+                window
+                    .emit(
+                        "chat-response",
+                        Message {
+                            is_done: true,
+                            content: "".into(),
+                        },
+                    )
+                    .map_err(|e| e.to_string());
+            }
+        }
+    }
+    window
+        .emit(
+            "chat-response",
+            Message {
+                is_done: true,
+                content: "".into(),
+            },
+        )
+        .map_err(|e| e.to_string());
 
-    result.unwrap().message.content
+    Ok(())
 }
